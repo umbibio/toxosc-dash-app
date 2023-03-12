@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+
+  db:
+    # we need to use a local version of the docker image
+    # that fixes a version issue with python connector and 
+    # extra settings that we need
+    build: 
+      context: ./db
+      dockerfile: Dockerfile
+    image: 'mariadb:10.7-local'
+    restart: unless-stopped
+    volumes:
+      - './data/tsv_files:/opt/data/tsv_files'
+      - './data/initdb.d:/docker-entrypoint-initdb.d'
+      - './mariadb/:/var/lib/mysql'
+    env_file:
+      - variables_db.env
+    environment:
+      MARIADB_USER: dash_app_user
+      MARIADB_DATABASE: dash_app_db
+      MARIADB_ROOT_HOST: localhost
+
+  dash:
+    image: python:3.11
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - 8050:8050
+    volumes:
+      - ./dash-app:/opt/app
+      - ./data/tsv_files:/opt/app/assets/public-data/tsv_files
+      - ./docker_entrypoint_dash.sh:/opt/docker_entrypoint_dash.sh
+      - ./run_dash_app.sh:/opt/run_dash_app.sh
+    env_file:
+      - variables.env
+    environment:
+      MARIADB_HOST: db
+      MARIADB_USER: dash_app_user
+      MARIADB_DATABASE: dash_app_db
+    working_dir: /opt/app/
+    entrypoint: ["/opt/docker_entrypoint_dash.sh"]
+    command: ["/opt/run_dash_app.sh"]
+

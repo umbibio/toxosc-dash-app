@@ -1,0 +1,8 @@
+__pycache__
+*.ipynb
+*.env
+.*
+mariadb
+*.tsv
+*.gtf
+*.gff

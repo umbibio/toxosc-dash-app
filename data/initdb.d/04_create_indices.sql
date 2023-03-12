@@ -1,0 +1,15 @@
+CREATE INDEX index_scATAC_expr_all_genes_GeneID ON scATAC_expr_all_genes ( `GeneID` );
+CREATE INDEX index_scATAC_expr_all_genes_Sample ON scATAC_expr_all_genes ( `Sample` );
+CREATE UNIQUE INDEX index_scATAC_meta_data_Sample ON scATAC_meta_data ( `Sample` );
+CREATE UNIQUE INDEX index_scATAC_meta_gene_all_genes_GeneID ON scATAC_meta_gene_all_genes ( `GeneID` );
+CREATE UNIQUE INDEX index_scATAC_scRNA_peak_expression_chromosome_location_GeneID ON scATAC_scRNA_peak_expression_chromosome_location ( `GeneID` );
+CREATE INDEX index_scATAC_spline_fit_all_genes_GeneID ON scATAC_spline_fit_all_genes ( `GeneID` );
+CREATE INDEX index_scATAC_spline_fit_distance_matrix_GeneID_1 ON scATAC_spline_fit_distance_matrix ( `GeneID.1` );
+CREATE UNIQUE INDEX index_scATAC_spline_fit_distance_quantiles_GeneID ON scATAC_spline_fit_distance_quantiles ( `GeneID` );
+CREATE INDEX index_scRNA_expr_all_genes_GeneID ON scRNA_expr_all_genes ( `GeneID` );
+CREATE INDEX index_scRNA_expr_all_genes_Sample ON scRNA_expr_all_genes ( `Sample` );
+CREATE UNIQUE INDEX index_scRNA_meta_data_Sample ON scRNA_meta_data ( `Sample` );
+CREATE UNIQUE INDEX index_scRNA_meta_gene_all_genes_GeneID ON scRNA_meta_gene_all_genes ( `GeneID` );
+CREATE INDEX index_scRNA_spline_fit_all_genes_GeneID ON scRNA_spline_fit_all_genes ( `GeneID` );
+CREATE INDEX index_scRNA_spline_fit_distance_matrix_GeneID_1 ON scRNA_spline_fit_distance_matrix ( `GeneID.1` );
+CREATE UNIQUE INDEX index_scRNA_spline_fit_distance_quantiles_GeneID ON scRNA_spline_fit_distance_quantiles ( `GeneID` );
