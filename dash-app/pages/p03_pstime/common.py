@@ -32,7 +32,6 @@ def make_sc_plot(dclass, phase_visible=True):
     unique_phases = ['G1.a', 'G1.b', 'S', 'M', 'C']
     for phase, color in zip(unique_phases, phases_color_sequence):
         x, y = df.loc[df['phase'] == phase, ['PC_1', 'PC_2']].values.T
-        x = -x
         fig.add_trace(go.Scatter(
             x=x,
             y=y,
@@ -57,7 +56,6 @@ def make_sc_plot(dclass, phase_visible=True):
     n = 200
     i = len(dff) // n
     x, y = pd.concat([dff.iloc[::i], dff.iloc[[0]]]).loc[:, ['sc1', 'sc2']].values.T
-    x = -x
     fig.add_trace(go.Scatter(
         x=x,
         y=y,
@@ -69,7 +67,6 @@ def make_sc_plot(dclass, phase_visible=True):
     ))
 
     x, y = dff.loc[[0], ['sc1', 'sc2']].values.T
-    x = -x
     fig.add_trace(go.Scatter(
         x=x,
         y=y,
