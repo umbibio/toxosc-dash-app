@@ -6,3 +6,5 @@ mariadb
 *.tsv
 *.gtf
 *.gff
+*.tar.gz
+*.zip
