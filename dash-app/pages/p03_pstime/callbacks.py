@@ -48,7 +48,7 @@ def update_expression_plots(gene_id, id):
             unique_phases = df['phase'].sort_values().unique()
             colorbar_height_px = 250 - len(unique_phases) * 20
             fig.add_trace(go.Scatter(
-                x=-df['PC_1'],
+                x=df['PC_1'],
                 y=df['PC_2'],
                 mode='markers',
                 marker=dict(
