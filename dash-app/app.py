@@ -30,6 +30,6 @@ app = dash.Dash(
     external_stylesheets=external_stylesheets,
     url_base_pathname=url_base_pathname,
     suppress_callback_exceptions=True,
-    title='AppName', update_title='Loading...')
+    title='Toxo Single Cell', update_title='Loading...')
 
 server = app.server
