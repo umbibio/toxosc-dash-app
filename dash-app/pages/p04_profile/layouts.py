@@ -42,20 +42,34 @@ menu = [
 
 body = [
     html.H3('Similar Expression Profiles'),
-        dbc.Row([
-                dbc.Col(
-                dbc.Card([ dbc.CardHeader(html.H4(key.replace('_', ' '))),
-                dbc.CardBody(dbc.Row([
-                    dbc.Col([
-                        dbc.Spinner([
-                            dcc.Graph(
-                                id={'type': 'similar-profiles-expr-time-curve', 'key': key},
-                                figure={'layout': { 'height': 450, "xaxis": { "visible": 'false' }, "yaxis": { "visible": 'false' }, } },),
-                        ], id=f'loading-similar-profiles-expr-time-curve-{key}', type='border', fullscreen=False, color='primary', delay_hide=100,),
-                    ]),
-                ])),
-            ]))
-            for key in ['RNA_Profile', 'ATAC_Profile']
-        ], class_name="mb-4")
+    dbc.Row([
+            dbc.Col(
+            dbc.Card([ dbc.CardHeader(html.H4(key.replace('_', ' '))),
+            dbc.CardBody(dbc.Row([
+                dbc.Col([
+                    dbc.Spinner([
+                        dcc.Graph(
+                            id={'type': 'similar-profiles-expr-time-curve', 'key': key},
+                            figure={'layout': { 'height': 450, "xaxis": { "visible": 'false' }, "yaxis": { "visible": 'false' }, } },),
+                    ], id=f'loading-similar-profiles-expr-time-curve-{key}', type='border', fullscreen=False, color='primary', delay_hide=100,),
+                ]),
+            ])),
+        ]))
+        for key in ['RNA_Profile', 'ATAC_Profile']
+    ], class_name="mb-4"),
+    dcc.Textarea(
+        id="similar-profiles-similar-genes-list-textarea",
+        value="",
+        style={"height": 100},
+    ),
+    dcc.Clipboard(
+        target_id="similar-profiles-similar-genes-list-textarea",
+        title="Copy list of genes",
+        style={
+            "display": "inline-block",
+            "fontSize": 20,
+            "verticalAlign": "top",
+        },
+    ),
 ]
 

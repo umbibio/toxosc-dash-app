@@ -14,6 +14,7 @@ from app import app, db
 
 @app.callback(
     Output('similar-profiles-similar-genes-list-store', 'data'),
+    Output('similar-profiles-similar-genes-list-textarea', 'value'),
     Input('similar-profiles-gene-dropdown', 'value'),
     Input('similar-profiles-filter-by-selector', 'value'),
     Input('similar-profiles-distance-quantile', 'value'), )
@@ -51,7 +52,7 @@ def update_similar_genes_list(gene_id, filter_by, quantile_pct):
             else:
                 similar_genes = set(dclass_similar_genes)
 
-        return list(similar_genes)
+        return list(similar_genes), '\n'.join(list(similar_genes))
 
     else:
         raise PreventUpdate
