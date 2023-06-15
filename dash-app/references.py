@@ -59,7 +59,10 @@ def cite(key, full=False, markdown=False):
     else:
         doi_url = None
 
-    published_str = "Published:" 
+    if ref['journal']:
+        published_str = "Published:"
+    else:
+        published_str = "Submitted:"
     if 'month' in ref:
         published_str += ' ' + months[ref['month']] 
     published_str += ' ' + ref['year']
@@ -70,8 +73,8 @@ def cite(key, full=False, markdown=False):
         html.I(ref['journal']),
         ', Volume ' + ref['volume'] if 'volume' in ref else None,
         ', Issue ' + ref['number'] if 'number' in ref else None,
-        html.Br(),
+        html.Br() if doi_url else None,
         doi_url,
-        html.Br(),
+        html.Br() if published_str else None,
         published_str,
     ])

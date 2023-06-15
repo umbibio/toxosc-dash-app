@@ -7,17 +7,24 @@ from references import cite
 
 
 description = f'''
-Welcome!
-
-This portal is related to {cite('name2023', markdown=True)}
 '''
+# Welcome!
+# This portal is related to {cite('name2023', markdown=True)}
+# '''
+
+contact = '''
+For questions or comments please contact:
+
+[ArriojasMaldonado001@umb.edu](mailto:ArriojasMaldonado001@umb.edu?Subject=About%20your%20ToxoSC%20web%20app)
+'''
+
 
 menu = None
 
 body = [
     dbc.Row(dbc.Col(
         dbc.Card([
-            dbc.CardHeader(html.H2("Site Title")),
+            dbc.CardHeader(html.H2("Toxo Single Cell Atlas")),
             dbc.CardBody(
                 dbc.Row([
                     dbc.Col(dcc.Markdown(description),
@@ -36,13 +43,12 @@ body = [
         dbc.Col(dbc.Card([
             dbc.CardHeader(html.H4("Citation")),
             dbc.CardBody([
-                cite('name2023', full=True)
+                cite('lou2023mpm', full=True)
             ]),
         ],),),
         dbc.Col(dbc.Card([
             dbc.CardHeader(html.H4("Contact")),
-            dbc.CardBody(dcc.Markdown('''
-''')),
+            dbc.CardBody(dcc.Markdown(contact)),
         ],),),
     ]),
 ]
