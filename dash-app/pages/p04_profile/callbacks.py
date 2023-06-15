@@ -21,31 +21,33 @@ from app import app, db
 def update_similar_genes_list(gene_id, filter_by, quantile_pct):
     if filter_by and gene_id:
         quantile = quantile_pct / 100
-        quantile_col = f"q{quantile:.2f}"
+        quantile_col = f"q{quantile:.3f}"
 
         similar_genes = set()
         for dclass in ['scRNA', 'scATAC']:
             if not filter_by in dclass and not filter_by == 'Both':
                 continue
 
+            # TODO: Fix gene names in database. Should have '_' instead of '-'
+
             quantile_thr = db.select(
                 dclass=dclass,
-                table='spline_fit_distance_quantiles',
+                table='spline_fit_distance_quantiles_v2',
                 cols=[quantile_col],
-                where=dict(GeneID=gene_id)).iloc[0, 0]
+                where=dict(GeneID=gene_id.replace('_', '-'))).iloc[0, 0]
             
 
             dclass_similar_genes = db.select(
                 dclass=dclass,
-                table='spline_fit_distance_matrix',
+                table='spline_fit_distance_matrix_v2',
                 cols=['GeneID.2'],
                 where=[
                     {
-                        'GeneID.1': gene_id,
+                        'GeneID.1': gene_id.replace('_', '-'),
                         'distance': {quantile_thr: '<'},
                     },
                 ],
-                verbose=False)['GeneID.2']
+                verbose=False)['GeneID.2'].str.replace('-', '_')
 
             if similar_genes:
                 similar_genes.intersection(dclass_similar_genes)
@@ -101,3 +103,15 @@ def update_time_curve_plots(similar_genes, id):
         ]})
 
     return fig
+
+
+@app.callback(
+    Output('similar-profiles-gene-dropdown', 'value'),
+    Input('similar-profiles-gene-example-button', 'n_clicks'),
+)
+def update_gene_dropdown_value(n_clicks):
+    try:
+        if ctx.triggered_id == 'similar-profiles-gene-example-button':
+            return 'TGME49_250800'
+    except:
+        PreventUpdate

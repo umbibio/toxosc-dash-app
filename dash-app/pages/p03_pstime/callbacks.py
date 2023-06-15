@@ -143,6 +143,18 @@ def update_time_curve_plots(gene_id, id):
     return fig
 
 
+@app.callback(
+    Output('pstime-gene-dropdown', 'value'),
+    Input('pstime-gene-example-button', 'n_clicks'),
+)
+def update_gene_dropdown_value(n_clicks):
+    try:
+        if ctx.triggered_id == 'pstime-gene-example-button':
+            return 'TGME49_250800'
+    except:
+        PreventUpdate
+
+
 # app.clientside_callback(
 #     """
 #     function update_pstime_gene_dropdown_value(n_clicks) {
@@ -151,7 +163,7 @@ def update_time_curve_plots(gene_id, id):
 
 #         if(prop_id !== 'pstime-gene-example-button.n_clicks') return;
 
-#         return 'Bdiv_000760c';
+#         return 'TGME49_250800';
 #     }
 #     """,
 #     Output("pstime-gene-dropdown", 'value'),

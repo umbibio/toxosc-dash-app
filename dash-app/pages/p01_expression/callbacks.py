@@ -128,22 +128,30 @@ def draw_expression_plot(dd_id, gene_id, dimred, pca_nd):
     return fig
 
 
+@app.callback(
+    Output({'type': 'expression-gene-dropdown', 'dclass': MATCH}, 'value'),
+    Input({'type': 'expression-gene-example-button', 'dclass': MATCH}, 'n_clicks'),
+)
+def update_gene_dropdown_value(n_clicks):
+    try:
+        id = ctx.triggered_id
+        if id['type'] == 'expression-gene-example-button':
+            return 'TGME49_250800'
+    except:
+        PreventUpdate
+
 # app.clientside_callback(
 #     """
-#     function update_gene_dropdown_value(n_clicks, dclass) {
-#         if(dash_clientside.callback_context.triggered.length == 0) return;
-#         prop_id = dash_clientside.callback_context.triggered[0].prop_id
-
-#         if(prop_id !== 'expression-gene-example-button.n_clicks') return;
-#         if(dclass == 'bbig') return 'BBBOND_0103330';
-#         if(dclass == 'bbov') return 'BBOV_I001860';
-#         if(dclass == 'bdiv_human') return 'Bdiv_002840c';
-#         if(dclass == 'bdiv_cow') return 'Bdiv_002840c';
-#         if(dclass == 'bmic') return 'BMR1_01G01876';
+#     function update_gene_dropdown_value(n_clicks, id) {
+#         if(n_clicks === undefined || id === undefined) {
+#             return '';
+#         }
+#         return '';
 #     }
 #     """,
-#     Output("expression-gene-dropdown", 'value'),
-#     Input("expression-gene-example-button", "n_clicks"),
-#     Input("dclass-dropdown", "value"),
+#     # Output({'dclass': 'scRNA', 'type': 'expression-gene-dropdown', }, 'value'),
+#     Output('mytest', 'value'),
+#     Input({'type': 'expression-gene-example-button', 'dclass': 'scRNA'}, 'n_clicks'),
+#     Input({'type': 'expression-gene-example-button', 'dclass': 'scRNA'}, 'id'),
 # )
 

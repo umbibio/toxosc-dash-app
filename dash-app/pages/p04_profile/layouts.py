@@ -35,8 +35,8 @@ menu = [
     dbc.Label([
         "Closest Percentile:",
     ], html_for='similar-profiles-distance-quantile'),
-    dcc.Slider(1, 25, 1, value=1,
-               marks={v: f"{v}%" for v in [1, 5, 10, 15, 20, 25]},
+    dcc.Slider(0.1, 2.5, .1, value=.1,
+               marks={v: f"{v}%" for v in [.1, .5, 1.0, 1.5, 2.0, 2.5]},
                id='similar-profiles-distance-quantile'),
 ]
 
