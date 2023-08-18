@@ -8,3 +8,71 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance:textfield; /* Firefox */
 }
+
+
+.radio-group .form-check {
+    padding-left: 0;
+}
+  
+.radio-group .btn-group > .form-check:not(:last-child) > .btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+  
+.radio-group .btn-group > .form-check:not(:first-child) > .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+}
+
+.radio-group .btn-outline-secondary {
+    border-color: #dee2e6;
+}
+
+.radio-group .btn-outline-secondary:hover {
+    background-color: #eee;
+    color: #999;
+}
+
+.radio-group .btn-outline-secondary.active:hover {
+    background-color: var(--bs-secondary);
+    color: white;
+}
+
+.page-item .page-link,
+.page-item.disabled .page-link {
+    color: #999;
+}
+
+.outline.primary.pagination .page-item:not(.active) .page-link {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.primary.pagination .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.outline.secondary.pagination .page-item:not(.active) .page-link {
+    color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+}
+
+.secondary.pagination .page-item.active .page-link {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+}
+
+#selected-rows-table td.remove-selected i:hover {
+    color: var(--bs-danger);
+    cursor: pointer;
+}
+
+.sort-icon:hover {
+    cursor: pointer;
+}
+
+.hover-cursor-pointer:hover {
+    cursor: pointer;
+}
