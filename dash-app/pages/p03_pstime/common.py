@@ -24,7 +24,9 @@ phase_color_rgb_dict = dict(zip(phase_abbrv, phase_colors_rgb))
 # phases_color_sequence = sample_colorscale('Rainbow', 7)
 phases_color_sequence = [c.replace('(', 'a(').replace(')', ', 0.2)') for c in phase_colors_rgb]
 
-def make_sc_plot(dclass, phase_visible=True):
+def make_sc_plot(dclass, gene_id=None):
+    phase_visible='legendonly' if gene_id else True
+    timeline_visible='legendonly' if gene_id else True
     fig = go.Figure(layout={ 'xaxis': {'title': 'PC_1'}, 'yaxis': {'title': 'PC_2', 'scaleanchor': 'x' }, 'height': 450, 'margin': {'l':10, 'r':10, 't':60, 'b':60}})
     
 
@@ -66,6 +68,66 @@ def make_sc_plot(dclass, phase_visible=True):
         legendgrouptitle_text="Timeline",
     ))
 
+    if gene_id:
+        df = db.select(
+            dclass=dclass,
+            table='meta_data',
+            right_table='expr_all_genes',
+            right_cols=['expr'],
+            right_on='Sample',
+            right_where=dict(GeneID=gene_id),
+        )
+
+        expr_colorscale = get_colorscale('Blues')
+        expr_colorscale_alpha = [[s, c.replace('(', 'a(').replace(')', f', {s/2})')] for s, c in expr_colorscale]
+        expr_colorscale_const_alpha = [[s, c.replace('(', 'a(').replace(')', f', 0.1)')] for s, c in expr_colorscale]
+
+        values = df['expr'] / df['expr'].max()
+        values = values.fillna(0)
+        marker_expr_colors = sample_colorscale(expr_colorscale, values)
+        marker_expr_colors_alpha = [c.replace('(', 'a(').replace(')', f', {v/2})') for c, v in zip(marker_expr_colors, values)]
+
+        unique_phases = df['phase'].sort_values().unique()
+        colorbar_height_px = 250 - len(unique_phases) * 20
+        fig.add_trace(go.Scatter(
+            x=df['PC_1'],
+            y=df['PC_2'],
+            mode='markers',
+            marker=dict(
+                color=marker_expr_colors_alpha,
+                cmin=df['expr'].min(),
+                cmax=df['expr'].max(),
+                line=dict(width=1.2, color='rgba(1.00, 1.00, 1.00, 0.05)'),
+                # line=dict(width=1., color='rgba(0., 0., 0., 0.1)'),
+                # line=dict(width=1., color=expr_colorscale_const_alpha[6][1]),
+                colorbar=dict(
+                    title="Counts",
+                    len=colorbar_height_px,
+                    lenmode='pixels',
+                    x=1.1,
+                    y=-0.1,
+                    yanchor='bottom',
+                ),
+                colorscale=expr_colorscale_alpha,
+            ),
+            name='',
+            legendgroup="expression_group",
+            legendgrouptitle_text=gene_id,
+        ))
+
+        n = 200
+        i = len(dff) // n
+        x, y = pd.concat([dff.iloc[::i], dff.iloc[[0]]]).loc[:, ['sc1', 'sc2']].values.T
+        fig.add_trace(go.Scatter(
+            x=x,
+            y=y,
+            mode='lines',
+            line=dict(color='Black', width=1),
+            showlegend=False,
+            legendgroup="timeline_group",
+            legendgrouptitle_text="Timeline",
+        ))
+
     x, y = dff.loc[[0], ['sc1', 'sc2']].values.T
     fig.add_trace(go.Scatter(
         x=x,
@@ -78,5 +140,7 @@ def make_sc_plot(dclass, phase_visible=True):
         legendgrouptitle_text="Timeline",
     ))
 
+    fig.update_xaxes(showgrid=False, zeroline=False, showticklabels=False)
+    fig.update_yaxes(showgrid=False, zeroline=False, showticklabels=False)
     return fig
 

@@ -23,55 +23,8 @@ def update_expression_plots(gene_id, id):
 
     if ctx.triggered and ctx.triggered[0]['prop_id'] == 'pstime-gene-dropdown.value':
 
-        fig = make_sc_plot(dclass, phase_visible='legendonly' if gene_id else True)
-    
-        if gene_id:
-            df = db.select(
-                dclass=dclass,
-                table='meta_data',
-                right_table='expr_all_genes',
-                right_cols=['expr'],
-                right_on='Sample',
-                right_where=dict(GeneID=gene_id),
-            )
+        fig = make_sc_plot(dclass, gene_id)
 
-            expr_colorscale = get_colorscale('Blues')
-            expr_colorscale_alpha = [[s, c.replace('(', 'a(').replace(')', f', {s/2})')] for s, c in expr_colorscale]
-            expr_colorscale_const_alpha = [[s, c.replace('(', 'a(').replace(')', f', 0.1)')] for s, c in expr_colorscale]
-
-            values = df['expr'] / df['expr'].max()
-            marker_expr_colors = sample_colorscale(expr_colorscale, values)
-            marker_expr_colors_alpha = [c.replace('(', 'a(').replace(')', f', {v/2})') for c, v in zip(marker_expr_colors, values)]
-
-
-
-            unique_phases = df['phase'].sort_values().unique()
-            colorbar_height_px = 250 - len(unique_phases) * 20
-            fig.add_trace(go.Scatter(
-                x=df['PC_1'],
-                y=df['PC_2'],
-                mode='markers',
-                marker=dict(
-                    color=marker_expr_colors_alpha,
-                    cmin=df['expr'].min(),
-                    cmax=df['expr'].max(),
-                    line=dict(width=1.2, color='rgba(0.66, 0.66, 0.66, 0.2)'),
-                    # line=dict(width=1., color='rgba(0., 0., 0., 0.1)'),
-                    # line=dict(width=1., color=expr_colorscale_const_alpha[6][1]),
-                    colorbar=dict(
-                        title="Counts",
-                        len=colorbar_height_px,
-                        lenmode='pixels',
-                        x=1.1,
-                        y=-0.1,
-                        yanchor='bottom',
-                    ),
-                    colorscale=expr_colorscale_alpha,
-                ),
-                name='',
-                legendgroup="expression_group",
-                legendgrouptitle_text="Expression",
-            ))
     else:
         raise PreventUpdate
 
