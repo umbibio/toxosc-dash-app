@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from plotly.colors import sample_colorscale, get_colorscale
 
 from app import app, db
+from genome import descriptions
 
 
 @app.callback(
@@ -24,12 +25,13 @@ def update_2d3d_visibility(dimred):
 
 @app.callback(
     Output({'type': 'expression-graph', 'dclass': MATCH}, 'figure'),
-    Input({'type': 'expression-gene-dropdown', 'dclass': MATCH}, 'id'),
-    Input({'type': 'expression-gene-dropdown', 'dclass': MATCH}, 'value'),
+    Input({'type': 'expression-gene-dropdown-relay', 'dclass': MATCH}, 'id'),
+    Input({'type': 'expression-gene-dropdown-relay', 'dclass': MATCH}, 'data'),
     Input('dimred-radio', 'value'),
     Input('2d3d-radio', 'value'),
+    Input('p01-colorscale-dropdown', 'value'),
     )
-def draw_expression_plot(dd_id, gene_id, dimred, pca_nd):
+def draw_expression_plot(dd_id, gene_id, dimred, pca_nd, colorscale):
     dclass = dd_id['dclass']
 
     params = dict()
@@ -43,11 +45,11 @@ def draw_expression_plot(dd_id, gene_id, dimred, pca_nd):
 
         params.update(dict(mode='markers'))
         marker_dict = dict(
-            color='rgba(0., 0., 0., 0.)',
-            line=dict(width=1.2, color='rgba(0.83, 0.83, 0.83, 0.6)'),
+            color='rgba(0., 0., 0., 0.2)',
+            line=dict(width=1.2, color='rgba(0.83, 0.83, 0.83, 0.)'),
             # line=dict(width=1.2, color=sample_colorscale('Blues', [1.])[0].replace('(', 'a(').replace(')', ', 0.2)')),
         )
-        if gene_id is not None:
+        if gene_id is not None and gene_id in descriptions.ID.values:
             expression = db.select(
                 dclass=dclass,
                 table='expr_all_genes',
@@ -56,7 +58,7 @@ def draw_expression_plot(dd_id, gene_id, dimred, pca_nd):
 
             df = df.merge(expression)
 
-            expr_colorscale = get_colorscale('Blues')
+            expr_colorscale = get_colorscale(colorscale)
 
             values = df['expr'] / df['expr'].max()
             values = values.fillna(0.)
@@ -71,7 +73,7 @@ def draw_expression_plot(dd_id, gene_id, dimred, pca_nd):
                 cmin=df['expr'].min(),
                 cmax=df['expr'].max(),
                 # line=dict(width=1.2, color=marker_line_color_alpha),
-                line=dict(width=1.2, color='rgba(0.83, 0.83, 0.83, 0.6)'),
+                line=dict(width=1.2, color='rgba(0.83, 0.83, 0.83, 0.05)'),
                 colorscale=expr_colorscale_alpha,
                 colorbar=dict(
                     title='Expression'
@@ -96,7 +98,7 @@ def draw_expression_plot(dd_id, gene_id, dimred, pca_nd):
                     marker_dict = dict(
                         color=marker_expr_colors_alpha,
                         size=3,
-                        line=dict(width=1.2, color='rgba(1.0, 1.0, 1.0, 0.2)'),
+                        line=dict(width=1.2, color='rgba(1.0, 1.0, 1.0, 0.05)'),
                         # line=dict(width=1.2, color='rgba(0.83, 0.83, 0.83, 0.6)'),
                         # line=dict(width=1., color=sample_colorscale('Blues', [1.])[0].replace('(', 'a(').replace(')', ', 0.4)')),
                     )
@@ -124,34 +126,45 @@ def draw_expression_plot(dd_id, gene_id, dimred, pca_nd):
         fig.add_trace(trace)
         fig.update_layout(axes_titles)
 
-    fig.update_layout({ 'yaxis': { 'scaleanchor': 'x' }, 'height': 700})
+    fig.update_layout({ 
+        'yaxis': { 'scaleanchor': 'x'},
+        'height': 700 if pca_nd == '3D' else 500, },
+    )
+    fig.update_xaxes(showgrid=False, zeroline=False, showticklabels=False)
+    fig.update_yaxes(showgrid=False, zeroline=False, showticklabels=False)
     return fig
 
 
-@app.callback(
+app.clientside_callback(
+    """
+    function update_gene_dropdown_relay(gene_id) {
+        if(gene_id === undefined) return '';
+        if(gene_id.length === 0 || gene_id.length === 13) return gene_id;
+        throw dash_clientside.PreventUpdate;
+    }
+    """,
+    Output({'type': 'expression-gene-dropdown-relay', 'dclass': MATCH}, 'data'),
+    Input({'type': 'expression-gene-dropdown', 'dclass': MATCH}, 'value'),
+)
+
+
+app.clientside_callback(
+    """
+    function update_gene_dropdown_value(n_clicks) {
+        if(n_clicks === undefined) throw dash_clientside.PreventUpdate;
+        return 'TGME49_250800';
+    }
+    """,
     Output({'type': 'expression-gene-dropdown', 'dclass': MATCH}, 'value'),
     Input({'type': 'expression-gene-example-button', 'dclass': MATCH}, 'n_clicks'),
 )
-def update_gene_dropdown_value(n_clicks):
-    try:
-        id = ctx.triggered_id
-        if id['type'] == 'expression-gene-example-button':
-            return 'TGME49_250800'
-    except:
-        PreventUpdate
 
-# app.clientside_callback(
-#     """
-#     function update_gene_dropdown_value(n_clicks, id) {
-#         if(n_clicks === undefined || id === undefined) {
-#             return '';
-#         }
-#         return '';
-#     }
-#     """,
-#     # Output({'dclass': 'scRNA', 'type': 'expression-gene-dropdown', }, 'value'),
-#     Output('mytest', 'value'),
-#     Input({'type': 'expression-gene-example-button', 'dclass': 'scRNA'}, 'n_clicks'),
-#     Input({'type': 'expression-gene-example-button', 'dclass': 'scRNA'}, 'id'),
-# )
-
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("collapse-button", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
