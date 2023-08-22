@@ -102,13 +102,10 @@ def update_time_curve_plots(similar_genes, id, gene_id, hovered_trace_gene_id):
         # similar_genes[f'{dclass}_color'] = sample_colorscale('viridis', similar_genes[dclass].clip(0, 0.5)/0.5)
 
         trigger = ctx.triggered[0]['prop_id'].split('.')[0]
-        print('update_time_curve_plots trigger', trigger, dclass, flush=True)
         if trigger == 'hovered_trace_gene_id' and hovered_trace_gene_id['hovering']:
             if hovered_trace_gene_id['hovering'] == id['key']:
-                # print('prevented id', id, flush=True)
                 raise PreventUpdate
             else:
-                # print('updated id', id, flush=True)
                 pass
 
         df = db.select(
@@ -235,7 +232,6 @@ def update_info_tables(gene_id, similar_gene_ids, page, page_size, all_filters, 
     by = [c['name'] for i, c in enumerate(genes_table.table_columns) if sort_state[i] > 0]
     ascending = [not bool(s-1) for s in sort_state if s > 0]
     df = df.sort_values(by, ascending=ascending)
-    print('\ndf\n', df.head(), flush=True)
 
     descriptions = product_descriptions.set_index('ID')
     descriptions = descriptions.loc[df['Gene B ID'].to_list(), ['Name', 'description']]
@@ -245,7 +241,6 @@ def update_info_tables(gene_id, similar_gene_ids, page, page_size, all_filters, 
     data_slice = [{'index': -1-i} for i in range(page_size)]
     for i, item in enumerate(df.iloc[page*page_size:(page+1)*page_size].to_dict('records')):
         data_slice[i] = item
-    print('\ndata_slice\n', data_slice, flush=True)
 
     net_body = [
         html.Tbody([
@@ -286,8 +281,6 @@ def update_gene_dropdown_value(n_clicks):
 # )
 def update_hovered_trace_gene_id(data1, data2, current_data):
 
-    # print(ctx.triggered, flush=True)
-
     if isinstance(ctx.triggered, dict):
         if ctx.triggered['prop_id'] == '.':
             raise PreventUpdate
@@ -297,13 +290,7 @@ def update_hovered_trace_gene_id(data1, data2, current_data):
         raise PreventUpdate
 
     trigger = json.loads(trigger)
-    print('update_hovered_trace_gene_id trigger', trigger, flush=True)
-    # print(ctx.triggered, flush=True)
-    # print('data1', data1, flush=True)
-    # print('data2', data2, flush=True)
-
     trigger_key = trigger['key']
-    # print('trigger_key', trigger_key, flush=True)
 
     match trigger_key:
         case 'RNA_Profile':
