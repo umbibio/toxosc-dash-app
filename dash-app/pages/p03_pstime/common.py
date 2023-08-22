@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from plotly.colors import sample_colorscale, get_colorscale
+import plotly.express as px
 
 from app import db
 
@@ -20,11 +21,24 @@ phase_colors_rgb = ["rgb(26, 88, 120)", "rgb(196, 66, 55)", "rgb(173, 137, 65)",
 phase_color_dict = dict(zip(phase_abbrv, phase_colors))
 phase_color_rgb_dict = dict(zip(phase_abbrv, phase_colors_rgb))
 
+discrete_colors = [s for s in dir(px.colors.qualitative) if not s.startswith('_') and s != 'swatches']
+discrete_colors_dict = {s: getattr(px.colors.qualitative, s) for s in discrete_colors}
+
+discrete_colors.insert(0, 'Current')
+discrete_colors_dict.update({'Current': phase_colors})
+
+def hex_to_rgba(hex, alpha=1):
+    hex = hex.lstrip('#')
+    assert len(hex) == 6, 'Hex color must be 6 digits long'
+    r, g, b = int(hex[:2], 16), int(hex[2:4], 16), int(hex[4:], 16)
+    return f'rgba({r}, {g}, {b}, {alpha})'
 
 # phases_color_sequence = sample_colorscale('Rainbow', 7)
 phases_color_sequence = [c.replace('(', 'a(').replace(')', ', 0.2)') for c in phase_colors_rgb]
 
-def make_sc_plot(dclass, gene_id=None):
+def make_sc_plot(dclass, gene_id=None, palette=None, alpha=0.1):
+    if palette is None:
+        palette = 'Current'
     phase_visible='legendonly' if gene_id else True
     timeline_visible='legendonly' if gene_id else True
     fig = go.Figure(layout={ 'xaxis': {'title': 'PC_1'}, 'yaxis': {'title': 'PC_2', 'scaleanchor': 'x' }, 'height': 450, 'margin': {'l':10, 'r':10, 't':60, 'b':60}})
@@ -32,15 +46,15 @@ def make_sc_plot(dclass, gene_id=None):
 
     df = pd.DataFrame(dclass_data[dclass])
     unique_phases = ['G1.a', 'G1.b', 'S', 'M', 'C']
-    for phase, color in zip(unique_phases, phases_color_sequence):
+    for phase, color in zip(unique_phases, discrete_colors_dict.get(palette)):
         x, y = df.loc[df['phase'] == phase, ['PC_1', 'PC_2']].values.T
         fig.add_trace(go.Scatter(
             x=x,
             y=y,
             mode='markers',
             marker=dict(
-                color=color,
-                line=dict(width=0.8, color=color),
+                color=hex_to_rgba(color, alpha=alpha),
+                line=None,
             ),
             name=phase,
             visible=phase_visible,

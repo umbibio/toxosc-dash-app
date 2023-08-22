@@ -17,18 +17,10 @@ from .common import dclass_data, make_sc_plot
     Output({'type': 'pstime-expr-graph', 'key': MATCH}, 'figure'),
     Input('pstime-gene-dropdown', 'value'),
     State({'type': 'pstime-expr-graph', 'key': MATCH}, 'id'),
+    Input('p03-colorscale-dropdown', 'value'),
     )
-def update_expression_plots(gene_id, id):
-    dclass = id['key']
-
-    if ctx.triggered and ctx.triggered[0]['prop_id'] == 'pstime-gene-dropdown.value':
-
-        fig = make_sc_plot(dclass, gene_id)
-
-    else:
-        raise PreventUpdate
-
-    return fig
+def update_expression_plots(gene_id, id, colorscale):
+    return make_sc_plot(id['key'], gene_id, colorscale, alpha=0.1)
 
 
 @app.callback(

@@ -3,9 +3,10 @@ from dash import html
 
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
+import plotly.express as px
 
 from app import db
-from .common import make_sc_plot, dclass_keys, dclass_names
+from .common import make_sc_plot, dclass_keys, dclass_names, discrete_colors
 
 
 # read gene ids for all dclass
@@ -28,6 +29,14 @@ menu = [
         options=[{'label': g, 'value': g} for g in ids_intersection],
         value=None,
         placeholder='Search...'),
+    html.Br(),
+    html.P("Select Palette:"),
+    dcc.Dropdown(
+        id='p03-colorscale-dropdown', 
+        options=discrete_colors,
+        value='Current',
+        persistence=True,
+    ),
 ]
 
 
