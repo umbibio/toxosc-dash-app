@@ -54,7 +54,8 @@ menu = [
     dcc.Dropdown(
         id='p01-colorscale-dropdown', 
         options=px.colors.named_colorscales(),
-        value='blues'
+        value='blues',
+        persistence=True,
     ),
 ]
 
