@@ -94,7 +94,7 @@ def update_similar_genes_list(gene_id, filter_by, quantile_pct):
 def update_time_curve_plots(similar_genes, id, gene_id, hovered_trace_gene_id):
     dclass = 'scRNA' if id['key'].startswith('RNA') else 'scATAC'
 
-    layout = {'height': 450, "xaxis": { "visible": False }, "yaxis": { "visible": False },
+    layout = {'height': 350, "xaxis": { "visible": False }, "yaxis": { "visible": False },
               'margin': {'l':20, 'r':20, 't':60, 'b':60}}
 
     similar_genes = pd.DataFrame(similar_genes)

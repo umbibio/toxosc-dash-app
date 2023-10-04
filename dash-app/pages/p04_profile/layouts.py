@@ -76,7 +76,7 @@ body = [
                     dbc.Spinner([
                         dcc.Graph(
                             id={'key': key, 'type': 'similar-profiles-expr-time-curve'},
-                            figure={'layout': { 'height': 450, "xaxis": { "visible": 'true' }, "yaxis": { "visible": 'true' }, } },
+                            figure={'layout': { 'height': 350, "xaxis": { "visible": 'true' }, "yaxis": { "visible": 'true' }, } },
                             clear_on_unhover=True, 
                         ),
                     ], id=f'loading-similar-profiles-expr-time-curve-{key}', type='border', fullscreen=False, color='primary', delay_hide=100,),
