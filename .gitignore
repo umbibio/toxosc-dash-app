@@ -8,3 +8,4 @@ mariadb
 *.gff
 *.tar.gz
 *.zip
+*.pdb
