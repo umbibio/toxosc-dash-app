@@ -33,6 +33,7 @@ services:
       - ./dash-app:/opt/app
       - ./data/genome:/opt/app/assets/public-data/genome
       - ./data/tsv_files:/opt/app/assets/public-data/tsv_files
+      - ./data/structures:/opt/app/assets/public-data/structures
       - ./docker_entrypoint_dash.sh:/opt/docker_entrypoint_dash.sh
       - ./run_dash_app.sh:/opt/run_dash_app.sh
     env_file:
