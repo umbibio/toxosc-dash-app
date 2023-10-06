@@ -1,12 +1,47 @@
+from pathlib import Path
 import dash_bio as dashbio
 from dash import dcc, html, Input, Output, callback
 from dash.exceptions import PreventUpdate
 import dash_bio.utils.ngl_parser as ngl_parser
-from pathlib import Path
+import dash_bootstrap_components as dbc
 from dash_bio.utils import PdbParser, create_mol3d_style
 
+from app import app
+
+from genome import descriptions as product_descriptions
+product_descriptions = product_descriptions.set_index('ID')
 
 data_path = Path("assets/public-data/structures/")
+
+
+@callback(
+    Output('protein-structure-info-table-container', 'children'),
+    Input('molecule-viewer-dropdown', 'value'),
+)
+def populate_protein_info_table(value):
+
+    if (value is None):
+        raise PreventUpdate
+
+    pdb_path = data_path.joinpath(value)
+    pdb_href = app.get_asset_url(f"public-data/structures/{value}")
+    
+    gene_id = pdb_path.stem
+    description = product_descriptions.loc[gene_id] if gene_id in product_descriptions.index else {}
+
+    table_content = [
+        ("Gene ID", gene_id),
+        ("Gene Symbol", description.get('Name')),
+        ("Description", description.get('description')),
+        ("Download link", html.A(pdb_href, href=pdb_href, target="_blank")),
+    ]
+
+    table_body = [
+        html.Tbody([html.Tr([html.Td(v[0]), html.Td(v[1])])
+        for v in table_content])
+    ]
+
+    return dbc.Table(table_body, bordered=True, dark=False, hover=False, responsive=True, striped=True, size='sm')
 
 
 @callback(
@@ -19,8 +54,8 @@ def return_molecule(value):
     if (value is None):
         raise PreventUpdate
 
-    pdb_path = data_path.joinpath(value).as_posix()
-    parser = PdbParser(pdb_path)
+    pdb_path = data_path.joinpath(value)
+    parser = PdbParser(pdb_path.as_posix())
     data = parser.mol3d_data()
     styles = create_mol3d_style( data['atoms'], visualization_type='cartoon' )
 
