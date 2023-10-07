@@ -10,6 +10,8 @@ import pages
 
 import dash_bootstrap_components as dbc
 
+from genome import descriptions
+
 
 page_modules = [mod for mod in pages.__loader__.get_resource_reader().contents() if re.match('^p\d\d_', mod)]
 page_modules.sort()
