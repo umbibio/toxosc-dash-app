@@ -39,6 +39,7 @@ logo = html.Img(src=app.get_asset_url('logo.png'), className="img-fluid")
 app.layout = dbc.Container(
     dbc.Row([
         dcc.Location(id='url', refresh=False),
+        html.Datalist(id='list-suggested-gene-ids', children=[html.Option(value=word) for word in descriptions.ID]),
         dbc.Col([
             dbc.Row(dbc.Col(logo, width=8)),
             dbc.Row(dbc.Col(id='left-menu')),
