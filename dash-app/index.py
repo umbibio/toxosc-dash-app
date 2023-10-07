@@ -40,6 +40,7 @@ app.layout = dbc.Container(
     dbc.Row([
         dcc.Location(id='url', refresh=False),
         html.Datalist(id='list-suggested-gene-ids', children=[html.Option(value=word) for word in descriptions.ID]),
+        dcc.Store(id='expression-color-scale-store', storage_type='local'),
         dbc.Col([
             dbc.Row(dbc.Col(logo, width=10)),
             dbc.Row(dbc.Col(id='left-menu')),
