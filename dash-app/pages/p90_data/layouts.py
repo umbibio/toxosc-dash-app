@@ -10,6 +10,11 @@ from references import cite
 from genome import descriptions as product_descriptions
 
 
+def make_button(file):
+    href = app.get_asset_url(file.as_posix().replace('assets/', ''))
+    return dbc.Row(dbc.Col(dbc.Button(file.name, href=href, download=file.name, target='_blank', color='primary', outline=False, external_link=True, size='md'), className="d-grid gap-2"), class_name="mb-4")
+
+
 def make_card_link(file, name=None, link_width=12):
     href = app.get_asset_url(file.as_posix().replace('assets/', ''))
 
@@ -21,26 +26,41 @@ def make_card_link(file, name=None, link_width=12):
     return dbc.Col(dbc.Card( dbc.CardBody( body ), color='light', outline=True), width=link_width, class_name="mb-4")
 
 
-def make_accordion_item(pattern, title, description='', extra=[], names_dict={}, link_width=12):
+def make_accordion_item(title, description=None, pattern=None, buttons=None, names_dict={}, link_width=12):
     public = Path('assets/public-data')
-    files = list(public.rglob(pattern))
-    files.sort()
 
-    body_content = []
-    for file in files:
-        name = names_dict.get(file.stem)
-        if not name:
-            name = file.stem
-        body_content.append(make_card_link(file, name=name, link_width=link_width))
+    body = []
 
-    return dbc.AccordionItem(dbc.Row(body_content), title=title)
+    if description:
+        body.append(dcc.Markdown(description))
+
+    if buttons is not None:
+        files = list(public.glob(buttons))
+
+        for file in files:
+            body.append(make_button(file))
+
+    if pattern is not None:
+        files = list(public.rglob(pattern))
+        files.sort()
+
+        card_blocks = []
+        for file in files:
+            name = names_dict.get(file.stem)
+            if not name:
+                name = file.stem
+            card_blocks.append(make_card_link(file, name=name, link_width=link_width))
+
+        body.append(dbc.Row(card_blocks))
+    return dbc.AccordionItem(body, title=title)
     
 
 def make_accordion():
     gene_names = product_descriptions.set_index('ID')['Name'].to_dict()
     return dbc.Accordion([
-        make_accordion_item('alphafold/*.pdb', 'Protein Structures by AlphaFold', link_width=4, names_dict=gene_names),
-        make_accordion_item('uniprot/*.pdb', 'Protein Structures from Uniprot', link_width=4, names_dict=gene_names),
+        make_accordion_item('Preprocessed Data', 'This is the `description`.'),
+        make_accordion_item('Protein Structures by AlphaFold', pattern='alphafold/*.pdb', buttons='structures/alphafold_pdbs.zip', link_width=4, names_dict=gene_names),
+        make_accordion_item('Protein Structures from Uniprot', pattern='uniprot/*.pdb', buttons='structures/unipro_pdbs.zip', link_width=4, names_dict=gene_names),
     ],
     start_collapsed=True,)
 
