@@ -30,13 +30,11 @@ menu = [
         value=None,
         placeholder='Search...'),
     html.Br(),
-    html.P("Select Palette:"),
-    dcc.Dropdown(
-        id='p03-colorscale-dropdown', 
-        options=discrete_colors,
-        value='Current',
-        persistence=True,
-    ),
+    html.Hr(),
+    dbc.Accordion(dbc.AccordionItem([
+        dbc.Label([ "Select CC Phase Color Palette:", ], html_for='p03-colorscale-dropdown'),
+        dcc.Dropdown( id='p03-colorscale-dropdown', options=discrete_colors, value='Default', persistence=True, ),
+    ], title='Customize'), start_collapsed=True, flush=True, ),
 ]
 
 

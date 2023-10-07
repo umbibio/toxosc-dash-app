@@ -7,6 +7,9 @@ import plotly.express as px
 
 from app import db
 
+from genome import descriptions
+
+
 dclass_keys = ['scRNA', 'scATAC']
 dclass_names = ['scRNA', 'scATAC']
 dclass_names = dict(zip(dclass_keys, dclass_names))
@@ -24,10 +27,14 @@ phase_color_rgb_dict = dict(zip(phase_abbrv, phase_colors_rgb))
 discrete_colors = [s for s in dir(px.colors.qualitative) if not s.startswith('_') and s != 'swatches']
 discrete_colors_dict = {s: getattr(px.colors.qualitative, s) for s in discrete_colors}
 
-discrete_colors.insert(0, 'Current')
-discrete_colors_dict.update({'Current': phase_colors})
+discrete_colors.insert(0, 'Default')
+discrete_colors_dict.update({'Default': phase_colors})
 
-def hex_to_rgba(hex, alpha=1):
+def _rgb_to_rgba(rgb, alpha=1):
+    assert rgb.startswith('rgb('), 'Input color must be rgb'
+    return rgb.replace('rgb(', 'rgba(').replace(')', f', {alpha})')
+
+def _hex_to_rgba(hex, alpha=1):
     hex = hex.lstrip('#')
     assert len(hex) == 6, 'Hex color must be 6 digits long'
     r, g, b = int(hex[:2], 16), int(hex[2:4], 16), int(hex[4:], 16)
@@ -36,9 +43,12 @@ def hex_to_rgba(hex, alpha=1):
 # phases_color_sequence = sample_colorscale('Rainbow', 7)
 phases_color_sequence = [c.replace('(', 'a(').replace(')', ', 0.2)') for c in phase_colors_rgb]
 
-def make_sc_plot(dclass, gene_id=None, palette=None, alpha=0.1):
+def make_sc_plot(dclass, gene_id=None, palette=None, alpha=0.1, expression_colorscale='blues'):
     if palette is None:
-        palette = 'Current'
+        palette = 'Default'
+    if expression_colorscale is None:
+        expression_colorscale = 'blues'
+
     phase_visible='legendonly' if gene_id else True
     timeline_visible='legendonly' if gene_id else True
     fig = go.Figure(layout={ 'xaxis': {'title': 'PC_1'}, 'yaxis': {'title': 'PC_2', 'scaleanchor': 'x' }, 'height': 450, 'margin': {'l':10, 'r':10, 't':60, 'b':60}})
@@ -47,13 +57,20 @@ def make_sc_plot(dclass, gene_id=None, palette=None, alpha=0.1):
     df = pd.DataFrame(dclass_data[dclass])
     unique_phases = ['G1.a', 'G1.b', 'S', 'M', 'C']
     for phase, color in zip(unique_phases, discrete_colors_dict.get(palette)):
+        if color.startswith('rgb('):
+            color = _rgb_to_rgba(color, alpha=alpha)
+        elif color.startswith('#'):
+            color = _hex_to_rgba(color, alpha=alpha)
+        else:
+            raise ValueError(f'Unknown color format: {color}')
+
         x, y = df.loc[df['phase'] == phase, ['PC_1', 'PC_2']].values.T
         fig.add_trace(go.Scatter(
             x=x,
             y=y,
             mode='markers',
             marker=dict(
-                color=hex_to_rgba(color, alpha=alpha),
+                color=color,
                 line=None,
             ),
             name=phase,
@@ -82,7 +99,7 @@ def make_sc_plot(dclass, gene_id=None, palette=None, alpha=0.1):
         legendgrouptitle_text="Timeline",
     ))
 
-    if gene_id:
+    if gene_id is not None and gene_id in descriptions.ID.values:
         df = db.select(
             dclass=dclass,
             table='meta_data',
@@ -92,7 +109,7 @@ def make_sc_plot(dclass, gene_id=None, palette=None, alpha=0.1):
             right_where=dict(GeneID=gene_id),
         )
 
-        expr_colorscale = get_colorscale('Blues')
+        expr_colorscale = get_colorscale(expression_colorscale)
         expr_colorscale_alpha = [[s, c.replace('(', 'a(').replace(')', f', {s/2})')] for s, c in expr_colorscale]
         expr_colorscale_const_alpha = [[s, c.replace('(', 'a(').replace(')', f', 0.1)')] for s, c in expr_colorscale]
 

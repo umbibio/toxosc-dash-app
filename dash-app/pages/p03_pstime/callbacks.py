@@ -18,9 +18,10 @@ from .common import dclass_data, make_sc_plot
     Input('pstime-gene-dropdown', 'value'),
     State({'type': 'pstime-expr-graph', 'key': MATCH}, 'id'),
     Input('p03-colorscale-dropdown', 'value'),
+    Input('expression-color-scale-store', 'data'),
     )
-def update_expression_plots(gene_id, id, colorscale):
-    return make_sc_plot(id['key'], gene_id, colorscale, alpha=0.1)
+def update_expression_plots(gene_id, id, colorscale, expression_colorscale):
+    return make_sc_plot(id['key'], gene_id, colorscale, alpha=0.1, expression_colorscale=expression_colorscale)
 
 
 @app.callback(
