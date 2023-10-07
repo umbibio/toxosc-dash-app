@@ -1,51 +1,18 @@
-from datetime import datetime
-
 import re
-import pandas as pd
-from dash.exceptions import PreventUpdate
 
 from dash import callback_context as ctx
-from dash.dependencies import Input, Output, State, MATCH
+from dash.dependencies import Input, Output, State
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.colors import sample_colorscale, get_colorscale
 
 from app import app, db
 
-from .layouts import scRNA_config, scATAC_config, available_periodic_genes, example_list_of_genes
-
-
-# @app.callback(
-#     Output('peak-expression-circos-plot', 'tracks'),
-#     Input('peak-expression-gene-dropdown', 'value') )
-def update_circos_plot(selected_genes):
-    if not selected_genes:
-        return []
-
-    df = db.select('scATAC_scRNA', 'peak_expression_chromosome_location', where={'GeneID': selected_genes})
-    df['block_id'] = df['chromosome']
-    df['position'] = (df['start'] + df['end']) / 2
-    scRNA_data = df.rename(columns={'peak.ord.rna': 'value'}).loc[:,['block_id', 'position', 'value']].to_dict('records')
-    scATAC_data = df.rename(columns={'peak.ord.atac': 'value'}).loc[:,['block_id', 'position', 'value']].to_dict('records')
-
-    return [
-        {
-            "id": "scRNA",
-            "type": "SCATTER",
-            "data": scRNA_data,
-            "config": scRNA_config,
-        },
-        {
-            "id": "scATAC",
-            "type": "SCATTER",
-            "data": scATAC_data,
-            "config": scATAC_config,
-        },
-    ]
+from .layouts import available_periodic_genes, example_list_of_genes
 
 
 @app.callback(
     Output('peak-expression-scatter-plot', 'figure'),
+    Output('peak-expression-gene-loader-modal-text-area', 'value'),
     Input('peak-expression-gene-dropdown', 'value') )
 def update_graph(selected_genes):
     if not selected_genes:
@@ -73,12 +40,11 @@ def update_graph(selected_genes):
         fig.layout.xaxis.title = 'peak time (hr)'
         fig.update_layout({"height": max(500, 200 + 7 * len(dff))})
 
-    return fig
+    return fig, '\n'.join(selected_genes)
 
 
 @app.callback(
     Output('peak-expression-gene-dropdown', 'value'),
-    Output('peak-expression-gene-loader-modal-text-area', 'value'),
     Input("peak-expression-gene-loader-modal-close-button", "n_clicks"),
     Input("gene-list-clear-button", "n_clicks"),
     Input("peak-expression-gene-example-button", "n_clicks"),
@@ -89,9 +55,9 @@ def load_list_of_genes(n_clicks_modal, n_clicks_clear, n_clicks_example, textare
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     match trigger:
         case 'gene-list-clear-button':
-            return [], None
+            return []
         case 'peak-expression-gene-example-button':
-            return example_list_of_genes, None
+            return example_list_of_genes
         case _:
             pass
 
@@ -101,7 +67,7 @@ def load_list_of_genes(n_clicks_modal, n_clicks_clear, n_clicks_example, textare
         textarea_content = ''
     loaded_genes = re.sub('[,; \n]', ' ', textarea_content).split()
 
-    return list(set(selected_genes + loaded_genes).intersection(available_periodic_genes)), None
+    return list(set(selected_genes + loaded_genes).intersection(available_periodic_genes))
 
 
 @app.callback(
