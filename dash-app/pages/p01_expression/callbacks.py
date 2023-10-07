@@ -34,6 +34,9 @@ def update_2d3d_visibility(dimred):
 def draw_expression_plot(dd_id, gene_id, dimred, pca_nd, colorscale):
     dclass = dd_id['dclass']
 
+    if colorscale is None:
+        colorscale = 'blues'
+
     params = dict()
     fig = go.Figure()
     scatter_function = go.Scatter
@@ -159,12 +162,24 @@ app.clientside_callback(
     Input({'type': 'expression-gene-example-button', 'dclass': MATCH}, 'n_clicks'),
 )
 
-@app.callback(
-    Output("collapse", "is_open"),
-    [Input("collapse-button", "n_clicks")],
-    [State("collapse", "is_open")],
+
+app.clientside_callback(
+    """
+    function update_global_expression_colorscale(colorscale) {
+        if(colorscale === undefined) throw dash_clientside.PreventUpdate;
+        return colorscale;
+    }
+    """,
+    Output('expression-color-scale-store', 'data'),
+    Input('p01-colorscale-dropdown', 'value'),
 )
-def toggle_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
+
+# @app.callback(
+#     Output("collapse", "is_open"),
+#     [Input("collapse-button", "n_clicks")],
+#     [State("collapse", "is_open")],
+# )
+# def toggle_collapse(n, is_open):
+#     if n:
+#         return not is_open
+#     return is_open

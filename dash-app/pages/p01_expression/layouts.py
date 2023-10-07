@@ -34,7 +34,7 @@ menu = [
         #     {'label': gene, 'value': gene}
         #     for gene in db.select(dclass='scRNA', table='meta_gene_all_genes', cols=['GeneID']).GeneID
         # ], placeholder='Search...'),
-        dbc.Input(id={'type': 'expression-gene-dropdown', 'dclass': 'scRNA'}, type='text', list='list-suggested-inputs', value='', placeholder='Search...', minlength=13, maxlength=13, autocomplete='off'),
+        dbc.Input(id={'type': 'expression-gene-dropdown', 'dclass': 'scRNA'}, type='text', list='list-suggested-gene-ids', value='', placeholder='Search...', minlength=13, maxlength=13, autocomplete='off'),
     ], style={'display': 'block'}),
     html.Br(),
     html.Div(id={'type': 'expression-gene-dropdown-container', 'dclass': 'scATAC'}, children=[
@@ -50,13 +50,11 @@ menu = [
         
     ], style={'display': 'block'}),
     html.Br(),
-    html.P("Select Palette:"),
-    dcc.Dropdown(
-        id='p01-colorscale-dropdown', 
-        options=px.colors.named_colorscales(),
-        value='blues',
-        persistence=True,
-    ),
+    html.Hr(),
+    dbc.Accordion(dbc.AccordionItem([
+        dbc.Label([ "Select Expression Plots Color Palette:", ], html_for='p01-colorscale-dropdown'),
+        dcc.Dropdown( id='p01-colorscale-dropdown', options=px.colors.named_colorscales(), value='blues', persistence=True, ),
+    ], title='Customize'), start_collapsed=True, flush=True, ),
 ]
 
 
@@ -78,21 +76,5 @@ body = [
             )], type='border', fullscreen=False, color='primary', delay_hide=100, ),
         ], width=6),
     ]),
-    dbc.Row(dbc.Col([
-        dbc.Button(
-            "Toggle Pallete Legend",
-            id="collapse-button",
-            className="mb-3",
-            color="primary",
-            n_clicks=0,
-            size='sm',
-            outline=True,
-        ),
-        dbc.Collapse(
-            dcc.Graph(figure=px.colors.sequential.swatches_continuous()),
-            id="collapse",
-            is_open=False,
-        ),
-    ], class_name='text-end')),
 ]
 
