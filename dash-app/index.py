@@ -41,14 +41,14 @@ app.layout = dbc.Container(
         dcc.Location(id='url', refresh=False),
         html.Datalist(id='list-suggested-gene-ids', children=[html.Option(value=word) for word in descriptions.ID]),
         dbc.Col([
-            dbc.Row(dbc.Col(logo, width=8)),
+            dbc.Row(dbc.Col(logo, width=10)),
             dbc.Row(dbc.Col(id='left-menu')),
         ], width=3),
         dbc.Col([
             dbc.Row(dbc.Col(nav), class_name="p-2"),
-            dbc.Row(dbc.Col(id='page-content')),
+            dbc.Row(dbc.Col(id='page-content'), class_name='mt-4'),
         ], width=9),
-    ]),
+    ], class_name="mt-4"),
     fluid=False
 )
 
