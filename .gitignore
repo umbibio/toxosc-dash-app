@@ -9,3 +9,4 @@ mariadb
 *.tar.gz
 *.zip
 *.pdb
+*.pkl
