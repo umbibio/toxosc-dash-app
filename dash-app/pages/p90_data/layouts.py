@@ -57,10 +57,14 @@ def make_accordion_item(title, description=None, pattern=None, buttons=None, nam
 
 def make_accordion():
     gene_names = product_descriptions.set_index('ID')['Name'].to_dict()
+    preprocessed_description = f"""
+These are the preprocessed data files for reproducing the results from the paper.
+The corresponding code can be found in the [github repository](https://github.com/umbibio/scToxoplasmaCDC).
+    """
     return dbc.Accordion([
-        make_accordion_item('Preprocessed Data', 'This is the `description`.'),
+        make_accordion_item("Paper's Processed Data", preprocessed_description, buttons='preprocessed/*.zip'),
         make_accordion_item('Protein Structures by AlphaFold', pattern='alphafold/*.pdb', buttons='structures/alphafold_pdbs.zip', link_width=4, names_dict=gene_names),
-        make_accordion_item('Protein Structures from Uniprot', pattern='uniprot/*.pdb', buttons='structures/unipro_pdbs.zip', link_width=4, names_dict=gene_names),
+        make_accordion_item('Protein Structures from Uniprot', pattern='uniprot/*.pdb', buttons='structures/uniprot_pdbs.zip', link_width=4, names_dict=gene_names),
     ],
     start_collapsed=True,)
 
